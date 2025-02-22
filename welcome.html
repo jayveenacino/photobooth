@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>photobooth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: left;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .image-box {
+            border: none;
+            padding: 10px;
+            margin-right: 20px;
+            width: 250px;
+        }
+        .content {
+            max-width: 400px;
+            text-align: left;
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        h1:hover {
+            color: orange;
+        }
+        p {
+            font-size: 18px;
+            color: #333;
+        }
+        .download-text {
+            color: orange;
+            font-weight: bold;
+        }
+        .start-button {
+            background-color: orange;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 25px;
+            color: white;
+        }
+        .start-button:hover {
+            background-color: #cc7700;
+        }
+        a{
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html"><h2 class="header" >PHOTOSHOOT</h2></a>
+    <div class="container">
+        <div class="image-box">
+            <img src="src/img/photo strip.jpg" alt="Photobooth Preview" width="200">
+        </div>
+        <div class="content">
+            <h1>WELCOME!</h1>
+            <p>You have 3 seconds for each shot—no retakes!</p>
+            <p>This photobooth captures 4 pictures in a row, so strike your best pose and have fun!</p>
+            <p>After the session, <span class="download-text">download your digital copy</span> to keep the memories alive!</p>
+            <a href="frame.html"><button class="start-button">Start</button></a>
+        </div>
+    </div>
+</body>
+</html>

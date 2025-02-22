@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photobooth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid orange;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading .content {
+            display: none;
+        }
+        .content {
+            display: block;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+        }
+        h3 {
+            font-size: 18px;
+            color: #333;
+            margin-top: 5px;
+        }
+        #timer {
+            font-size: 20px;
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+        button {
+            background-color: orange;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 25px;
+            color: white;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #cc7700;
+        }
+        video {
+            width: 350px;
+            height: 300px;
+            display: block;
+            margin: 10px auto;
+        }
+        #container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+        #photos {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10;
+            margin-top: 10px;
+        }
+        #photos img {
+            width: 180px;
+            height: 140px;
+            margin: 0;
+            padding: 2px;
+        }
+        #controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: -20px;
+        }
+        .bw-filter {
+            filter: grayscale(100%);
+        }
+        #bwBtn, #mirrorBtn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #333;
+            margin-top: 10px;
+            display: block;
+        }
+        #filters {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        #colorControls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-left: 20px;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .color-option {
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 2px solid #fff;
+        }
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color:#333;
+        }
+        .skyblue { background-color: skyblue; }
+        .pink { background-color: pink; }
+        .lightred { background-color: lightcoral; }
+        .white { background-color: white; border: 2px solid #ccc; }
+        #borderControls {
+            margin-top: 20px;
+            display: none;
+        }
+        .bordered {
+            border-radius: 10px;
+            border: 10px solid;
+            padding: 10px;
+        }
+
+        #cameraSelect {
+            margin: 10px 20px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid #ccc;
+            cursor: pointer;
+            background-color: white;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body class="loading">
+    <div class="loader"></div>
+    <div class="content">
+        <a href="index.html"><h2 class="header">PHOTOSHOOT</h2></a>
+        <select id="cameraSelect">
+            <option value="environment">iRun Camera</option>
+            <option value="user">Laptop Camera</option>
+            <option value="gopro">GoPro Camera</option>
+        </select>
+
+        <div id="container">
+            <div>
+                <h3 id="countdown">0/3</h3>
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+                <h3 id="timer"></h3>
+                <div id="filters">
+                    <button id="bwBtn" onclick="toggleBWFilter()">🖤</button>
+                    <button id="mirrorBtn" onclick="toggleMirror()">🔄</button>
+                </div>
+                <div id="controls">
+                    <button id="startBtn" onclick="startCapture()">Start Countdown</button>
+                    <button id="downloadBtn" style="display:none;" onclick="downloadPhotoStrip()">Download</button>
+                </div>
+            </div>
+            <div id="photos"></div>
+        </div>
+
+        <div id="borderControls">
+            <button id="downloadBtn" style="display:none;" onclick="downloadPhotoStrip()">Download Photo Strip</button>
+        </div>
+    </div>
+
+    <script>
+        // Hide loading spinner when content is ready
+        window.onload = () => {
+            document.body.classList.remove('loading');
+        };
+    
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let context = canvas.getContext('2d');
+        let photosDiv = document.getElementById('photos');
+        let countdown = document.getElementById('countdown');
+        let timerDisplay = document.getElementById('timer');
+        let startBtn = document.getElementById('startBtn');
+        let isBW = false;
+        let isMirrored = false;
+        let borderColor = 'black';
+    
+        let capturedImages = [];
+    
+        // Function to change camera source based on selection
+        let cameraSelect = document.getElementById('cameraSelect');
+    
+        cameraSelect.addEventListener('change', function() {
+            let selectedCamera = cameraSelect.value;
+            let constraints;
+    
+            if (selectedCamera === 'gopro') {
+                constraints = {
+                    video: { 
+                        facingMode: 'environment',
+                        deviceId: { exact: 'GoPro' }
+                    }
+                };
+            } else if (selectedCamera === 'user') {
+                constraints = {
+                    video: { facingMode: 'user' }
+                };
+            } else {
+                constraints = {
+                    video: { facingMode: 'environment' }
+                };
+            }
+    
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error("Error accessing camera: ", err);
+                });
+        });
+    
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { console.error("Error accessing camera: ", err); });
+    
+        let videoContainer = video.parentElement;
+        videoContainer.style.position = "relative";
+    
+        timerDisplay.style.position = "absolute";
+        timerDisplay.style.top = "50%";
+        timerDisplay.style.left = "50%";
+        timerDisplay.style.transform = "translate(-50%, -50%)";
+        timerDisplay.style.zIndex = "10";
+        timerDisplay.style.fontSize = "48px";
+        timerDisplay.style.fontWeight = "bold";
+        timerDisplay.style.color = "white";
+        timerDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+        timerDisplay.style.padding = "10px 20px";
+        timerDisplay.style.borderRadius = "10px";
+    
+        function startCapture() {
+            photosDiv.innerHTML = ''; 
+            capturedImages = []; 
+            startBtn.disabled = true;
+            startBtn.innerText = "Retake";
+            countdown.innerText = "0/3";
+            timerDisplay.style.display = "block";
+            capturePhoto(3);
+        }
+    
+        function capturePhoto(count) {
+    if (count === 0) {
+        document.getElementById('borderControls').style.display = "block";  
+        document.getElementById('downloadBtn').style.display = "block";  
+        startBtn.disabled = false;
+        timerDisplay.style.display = "none";
+        return;
+    }
+
+    let timeLeft = 3;
+    timerDisplay.innerText = timeLeft;
+    let countdownInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.innerText = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+
+    setTimeout(() => {
+        applyShutterEffect();
+        context.filter = isBW ? "grayscale(100%)" : "none";
+        context.save(); 
+        if (isMirrored) {
+            context.setTransform(-1, 0, 0, 1, canvas.width, 0);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        } else {
+            context.setTransform(1, 0, 0, 1, 0, 0); 
+            context.drawImage(video, 0, 0, canvas.width, canvas.height); 
+        }
+
+        capturedImages.push(canvas.toDataURL());
+        countdown.innerText = `${3 - count + 1}/3`;
+
+        let imgElement = document.createElement("img");
+        imgElement.src = capturedImages[capturedImages.length - 1];
+        photosDiv.appendChild(imgElement);
+        capturePhoto(count - 1);
+    }, 3000); 
+}
+
+
+        function applyShutterEffect() {
+            video.style.transform = "scale(0.95)";
+            setTimeout(() => video.style.transform = "scale(1)", 100);
+        }
+    
+        function toggleBWFilter() {
+            isBW = !isBW;
+            // Apply the grayscale filter immediately to the video feed
+            updateVideoEffects();
+        }
+    
+        function toggleMirror() {
+            isMirrored = !isMirrored;
+            // Apply the mirroring effect immediately to the video feed
+            updateVideoEffects();
+        }
+    
+        function updateVideoEffects() {
+            if (isBW) {
+                video.style.filter = "grayscale(100%)";
+            } else {
+                video.style.filter = "none";
+            }
+    
+            if (isMirrored) {
+                video.style.transform = "scaleX(-1)";
+            } else {
+                video.style.transform = "scaleX(1)";
+            }
+        }
+    
+        function downloadPhotoStrip() {
+    let photoStrip = document.createElement('canvas');
+    let stripContext = photoStrip.getContext('2d');
+    
+    const margin = 20;
+    const textHeight = 40; 
+    const spaceBetweenImages = 20; 
+    const bottomSpace = 80; 
+
+    photoStrip.width = canvas.width + 2 * margin; 
+    photoStrip.height = (canvas.height * 3) + (spaceBetweenImages * 2) + textHeight + bottomSpace + 40; // Longer strip with extra space for text and images
+
+    stripContext.fillStyle = 'white';
+    stripContext.fillRect(0, 0, photoStrip.width, photoStrip.height);
+
+    for (let i = 0; i < capturedImages.length; i++) {
+        let img = new Image();
+        img.src = capturedImages[i];
+        img.onload = function() {
+
+            let imgXPosition = (photoStrip.width - canvas.width) / 2; 
+            let imgYPosition = i * (canvas.height + spaceBetweenImages) + 10; 
+
+            stripContext.strokeStyle = '#000';
+            stripContext.lineWidth = 1;
+            stripContext.strokeRect(imgXPosition, imgYPosition, canvas.width, canvas.height); 
+
+            stripContext.drawImage(img, imgXPosition, imgYPosition, canvas.width, canvas.height);
+
+            if (i === capturedImages.length - 1) {
+
+                stripContext.strokeStyle = '#000';
+                stripContext.lineWidth = 1;
+                stripContext.strokeRect(0, 0, photoStrip.width, photoStrip.height);
+
+                stripContext.font = '24px Arial'; 
+                stripContext.fillStyle = 'black'; 
+                stripContext.textAlign = 'center'; 
+                stripContext.fillText('PHOTOBOOTH', photoStrip.width / 2, photoStrip.height - bottomSpace + textHeight / 2); 
+
+                const currentDate = new Date();
+                const formattedDate = currentDate.toLocaleDateString('en-US');
+                stripContext.font = '18px Arial'; 
+                stripContext.fillText(formattedDate, photoStrip.width / 2, photoStrip.height - bottomSpace + textHeight + 10);
+                let dataUrl = photoStrip.toDataURL();
+                let link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'photo-strip.png';
+                link.click();
+            }
+        };
+    }
+}
+
+    </script>
+    
+
+</body>
+</html>

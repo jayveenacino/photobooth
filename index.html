@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photoshoot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #fafafa;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        header {
+            width: 100%;
+            padding: 15px 0;
+            margin-top: 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+        }
+
+        nav a {
+            color: #333;
+            text-decoration: none;
+            padding: 0 25px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ff9b00;
+            transform: scale(1.1);
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            max-width: 900px;
+            margin: 50px 0;
+        }
+
+        .content h1 {
+            font-size: 72px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            transition: all 0.5s ease;
+        }
+
+        .content h1:hover {
+            color: #ff9b00;
+            transform: scale(1.05);
+        }
+
+        .content p {
+            font-size: 20px;
+            color: #555;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+
+        .start-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #ff9b00;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .start-button:hover {
+            background-color: #ff7f00;
+            transform: translateY(-5px);
+        }
+
+        .start-button:focus {
+            outline: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            width: 100%;
+            padding-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content h1 {
+                font-size: 50px;
+            }
+
+            .content p {
+                font-size: 18px;
+            }
+
+            .start-button {
+                font-size: 16px;
+                padding: 12px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="#">Home</a>
+            <a href="about.html">About</a>
+            <a href="policy.html">Privacy Policy</a>
+        </nav>
+    </header>
+
+    <div class="content">
+        <h1>PHOTOSHOOTH</h1>
+        <p>Strike a pose, Freeze the moment, Own the memories</p>
+        <a href="welcome.html"><button class="start-button">Start</button></a>
+    </div>
+
+    <footer>
+        Made by Jayvee Nacino
+    </footer>
+</body>
+</html>
